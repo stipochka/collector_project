@@ -1,0 +1,12 @@
+# https://taskfile.dev
+
+version: '3'
+
+tasks:
+  description: generating protobuf files
+  gen-proto:
+    cmds:
+      - mkdir -p ./internal/logagent/
+      - "protoc -I ../telemetry-proto/proto  ../telemetry-proto/proto/*.proto --go_out=./internal/logagent/ \
+        --go_opt=paths=source_relative \
+        --go-grpc_out=./internal/logagent/ --go-grpc_opt=paths=source_relative"

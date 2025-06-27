@@ -1,0 +1,16 @@
+env: "local"
+
+storage:
+  type: "clickhouse"
+  address: "clickhouse_container:9440"
+  database: "telemetry_db"
+  table: "telemetry_data"
+  username: "telemetry_user"
+  password: "telemetry_pass"
+  batch_size: 1000
+  flush_timeout: 1s
+  migration_path: "/Users/stipochka/collector-project/collector-service/internal/migrate/00001_create_telemetry_table.sql"
+
+grpc_server:
+  grpc_port: 9000
+  max_msg_size_mb: 10

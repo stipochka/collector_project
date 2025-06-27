@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package logagent;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "gen/go/collector; logagent";  
+
+enum LogLevel {
+    DEBUG = 0;
+    INFO = 1;
+    WARN = 2;
+    ERROR = 3;
+    FATAL = 4;
+}
+
+
+message LogEntry {
+    google.protobuf.Timestamp timestamp = 1;
+    LogLevel level = 2;
+    string service_name = 3;
+    string message = 4;
+    string op = 5;
+}
+
+message Ack {
+    string status = 1;
+}
+
+service LogCollector {
+    rpc SendLogs(stream LogEntry) returns (Ack); 
+}
+
+
