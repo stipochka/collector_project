@@ -1,0 +1,39 @@
+services:
+  clickhouse: 
+    image: clickhouse@sha256:309b9238691234e4ebb554afa227c0c6b29f169b4e4ce9a68e621db170f964bb
+    container_name: clickhouse_container 
+    ports:
+      - "9000:9000"
+      - "8123:8123"
+    environment:
+      - CLICKHOUSE_DB=telemetry_db
+      - CLICKHOUSE_USER=telemetry_user
+      - CLICKHOUSE_PASSWORD=telemetry_pass
+    volumes:
+      - type: tmpfs
+        target: /var/lib/clickhouse
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8123/ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    
+  collector_service:
+    build:
+      context: ./collector-service
+      dockerfile: Dockerfile
+    container_name: collector-service
+    ports: 
+      - "9001:9001"
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+
+    volumes:
+      - ./collector-service/config/:/app/config/
+      - ./collector-service/internal/migrate:/app/migrate
+

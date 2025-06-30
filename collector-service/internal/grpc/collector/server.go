@@ -6,6 +6,7 @@ import (
 	"collector-service/internal/service"
 	"fmt"
 	"io"
+	"log/slog"
 	"sync"
 	"time"
 
@@ -19,14 +20,19 @@ const flushTimeout = time.Second * 3 // flush logs timeout
 type serverApi struct {
 	logagent.UnimplementedLogCollectorServer
 	service service.LogService
+	log     *slog.Logger
 }
 
-func Register(gRPCServer *grpc.Server, service service.LogService) {
-	logagent.RegisterLogCollectorServer(gRPCServer, &serverApi{service: service})
+func Register(gRPCServer *grpc.Server, service service.LogService, log *slog.Logger) {
+	logagent.RegisterLogCollectorServer(gRPCServer, &serverApi{service: service, log: log})
 }
 
 func (s *serverApi) SendLogs(stream logagent.LogCollector_SendLogsServer) error {
 	const op = "collector.serverApi.SendLogs"
+
+	log := s.log.With(slog.String("op", op))
+
+	log.Info("started logs stream")
 
 	ctx := stream.Context()
 
@@ -44,10 +50,13 @@ func (s *serverApi) SendLogs(stream logagent.LogCollector_SendLogsServer) error 
 		}
 
 		if err := s.service.StoreBatch(ctx, batch); err != nil {
+			log.Error("failed to insert batch", slog.Any("error", err))
 			return err
 		}
 
 		batch = batch[:0]
+		log.Info("successfully inserted batch")
+
 		return nil
 	}
 
@@ -82,6 +91,7 @@ func (s *serverApi) SendLogs(stream logagent.LogCollector_SendLogsServer) error 
 		entry, err := stream.Recv()
 		if err != nil {
 			if err == io.EOF {
+				log.Info("stream ended")
 				close(stopCh)
 				if err = flush(); err != nil {
 					return err
@@ -89,6 +99,8 @@ func (s *serverApi) SendLogs(stream logagent.LogCollector_SendLogsServer) error 
 
 				return stream.SendAndClose(&logagent.Ack{Status: "ok"})
 			}
+
+			log.Error("failed to receive message", slog.Any("error", err))
 
 			return fmt.Errorf("%s: failed to receive log: %w", op, err)
 		}

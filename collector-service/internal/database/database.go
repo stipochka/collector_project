@@ -2,7 +2,6 @@ package database
 
 import (
 	"context"
-	"crypto/tls"
 	"fmt"
 
 	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
@@ -20,9 +19,7 @@ func ConnectToDB(addr, database, user, password string) (*driver.Conn, error) {
 			Username: user,
 			Password: password,
 		},
-		TLS: &tls.Config{
-			InsecureSkipVerify: true, // Set to true for self-signed certificates; false for production,
-		},
+		TLS: nil,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("%s: failed to connect to database: %w", op, err)

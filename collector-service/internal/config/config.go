@@ -21,7 +21,7 @@ type Storage struct {
 	Table         string        `yaml:"table" env-required:"true"`
 	Username      string        `yaml:"username" env-required:"true"`
 	Password      string        `yaml:"password" env-required:"true"`
-	MigrationPath string        `yaml:"migration_path" env-default:"config/config.yaml"`
+	MigrationPath string        `yaml:"migration_path" env-default:"/app/migrate/00001_create_telemetry_table.sql"`
 	BatchSize     int           `yaml:"batch_size" env-default:"1000"`
 	FlushTimeout  time.Duration `yaml:"flush_timeout" env-default:"1"`
 }

@@ -8,8 +8,11 @@ import (
 	"log/slog"
 	"net"
 
+	_ "github.com/grpc-ecosystem/go-grpc-middleware"
+	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/recovery"
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -28,6 +31,8 @@ func NewApp(
 	port int,
 ) *App {
 
+	zapLogger, _ := zap.NewDevelopment()
+
 	loggingOpts := []logging.Option{
 		logging.WithLogOnEvents(
 			logging.PayloadReceived, logging.PayloadSent,
@@ -44,12 +49,20 @@ func NewApp(
 		),
 	}
 
-	gRPCServer := grpc.NewServer(grpc.ChainUnaryInterceptor(
-		recovery.UnaryServerInterceptor(recoveryOpts...),
-		logging.UnaryServerInterceptor(InterceptorLogger(log), loggingOpts...),
-	))
+	gRPCServer := grpc.NewServer(
+		grpc.ChainUnaryInterceptor(
+			grpc_zap.UnaryServerInterceptor(zapLogger),
+			recovery.UnaryServerInterceptor(recoveryOpts...),
+			logging.UnaryServerInterceptor(InterceptorLogger(log), loggingOpts...),
+		),
+		grpc.ChainStreamInterceptor(
+			grpc_zap.StreamServerInterceptor(zapLogger),
+			recovery.StreamServerInterceptor(recoveryOpts...),
+			logging.StreamServerInterceptor(InterceptorLogger(log), loggingOpts...),
+		),
+	)
 
-	collector.Register(gRPCServer, service)
+	collector.Register(gRPCServer, service, log)
 
 	return &App{
 		log:        log,
