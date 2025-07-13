@@ -12,6 +12,12 @@ type ClickHouseRepo struct {
 	db driver.Conn
 }
 
+func NewClickhouseRepo(db driver.Conn) *ClickHouseRepo {
+	return &ClickHouseRepo{
+		db: db,
+	}
+}
+
 func (c *ClickHouseRepo) GetLogs(ctx context.Context, filter models.LogFilter) ([]*models.LogEntry, error) {
 	const op = "repository.GetLogs"
 

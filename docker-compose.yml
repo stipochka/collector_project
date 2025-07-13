@@ -36,4 +36,22 @@ services:
     volumes:
       - ./collector-service/config/:/app/config/
       - ./collector-service/internal/migrate:/app/migrate
+  dashboard_service:
+    build:
+      context: ./dashboard
+      dockerfile: Dockerfile
+    container_name: dashboard_service
+    env_file:
+      ./dashboard/.env
+    environment:
+      - CONFIG_PATH=/app/config/config.yaml
+    ports: 
+      - "8080:8080"
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+
+    volumes:
+      - ./dashboard/config/:/app/config/
+
 

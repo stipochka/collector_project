@@ -1,10 +1,16 @@
 package main
 
 import (
+	"dashboard/internal/cache"
 	"dashboard/internal/config"
+	"dashboard/internal/handler"
+	"dashboard/internal/repository"
+	"dashboard/internal/service"
 	"dashboard/internal/storage"
+	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/joho/godotenv"
 	"go.uber.org/zap"
@@ -30,15 +36,32 @@ func main() {
 
 	lgr := setupLogger(cfg.Env)
 
+	fmt.Println("User:", cfg.Storage.User)
+	fmt.Println("Password:", cfg.Storage.Password)
+	fmt.Println("Address:", cfg.Storage.Address)
 	lgr.With(zap.String("service-name", "dashboard"))
 	lgr.Info("started dashboard service")
 
-	db, err := storage.NewStorage(cfg.A)
-	//TODO: init storage
+	db, err := storage.NewStorage(cfg.Storage.Address, cfg.Storage.Database, cfg.Storage.User, cfg.Storage.Password)
+	if err != nil {
+		lgr.Fatal("failed to open db connect", zap.Any("error", err))
+	}
 
-	//TODO: init repo
+	repo := repository.NewClickhouseRepo(*db)
 
-	//TODO: init router -- go-chi
+	telemetryCache := cache.NewInMemoryCache(time.Minute * 5)
+
+	service := service.NewTelemetryService(repo, telemetryCache)
+
+	handler := handler.NewHandler(service, lgr)
+
+	router := handler.InitRoutes()
+
+	lgr.Info("started dashboard http server", zap.String("address", cfg.HTTPServer.Address))
+
+	if err := router.Run(fmt.Sprintf("%s:%d", cfg.HTTPServer.Address, cfg.HTTPServer.Port)); err != nil {
+		lgr.Error("error while running dashboard server", zap.Any("error", err))
+	}
 }
 
 func setupLogger(env string) *zap.Logger {

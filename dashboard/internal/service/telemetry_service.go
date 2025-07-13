@@ -80,7 +80,7 @@ func (ts *TelemetryService) GetRecentErrors(ctx context.Context, filter models.T
 	return recentErrors, nil
 }
 
-func (ts *TelemetryService) GetAllServiceNames(ctx context.Context, filter models.TimeRangeFilter) ([]string, error) {
+func (ts *TelemetryService) GetAllServiceNames(ctx context.Context) ([]string, error) {
 	const op = "service.GetAllServiceNames"
 
 	if names, exists := ts.cache.Get(ctx, serviceNamesKey); exists {

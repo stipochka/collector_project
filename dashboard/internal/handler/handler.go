@@ -9,7 +9,14 @@ import (
 
 type Handler struct {
 	log     *zap.Logger
-	service service.TelemetryService
+	service service.Service
+}
+
+func NewHandler(service service.Service, log *zap.Logger) *Handler {
+	return &Handler{
+		log:     log,
+		service: service,
+	}
 }
 
 func (h *Handler) InitRoutes() *gin.Engine {
@@ -17,25 +24,32 @@ func (h *Handler) InitRoutes() *gin.Engine {
 
 	api := router.Group("/api")
 	api.Use(h.MiddlewareLogger())
+
 	{
-		logs := api.Group("/logs", h.GetLogs)
+		logs := api.Group("/logs")
 		{
+			logs.GET("", h.GetLogs)
+
 			errors := logs.Group("/errors")
 			{
-				errors.GET("/top", h.)
-				errors.GET("/recent", h.)
+				errors.GET("/top", h.GetTopErrors)
+				errors.GET("/recent", h.GetRecentErrors)
 			}
 
-			levels := logs.Group("/levels", h.) 
+			levels := logs.Group("/levels")
 			{
-				levels.GET("/stats", h)
+				levels.GET("", h.GetAllLogLevels)
+				levels.GET("/stats", h.GetLogLevelStats)
 			}
 		}
-		services := api.Group("/services", h.)
+
+		services := api.Group("/services")
+
 		{
-			services.GET("/stats", h.)
+			services.GET("", h.GetAllServiceNames)
+			services.GET("/stats", h.GetServiceStats)
 		}
 	}
 
-
+	return router
 }

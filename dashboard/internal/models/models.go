@@ -28,15 +28,15 @@ type TimeRangeFilter struct {
 
 type ServiceCount struct {
 	ServiceName string `json:"service_name"`
-	Count       int    `json:"count"`
+	Count       uint64 `json:"count"`
 }
 
 type LevelCount struct {
 	Level string `json:"level"`
-	Count int    `json:"count"`
+	Count uint64 `json:"count"`
 }
 
 type ErrorCount struct {
 	Message string `json:"message"`
-	Count   int    `json:"count"`
+	Count   uint64 `json:"count"`
 }

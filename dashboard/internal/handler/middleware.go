@@ -4,39 +4,28 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"go.uber.org/zap/zapcore"
+	"go.uber.org/zap"
 )
 
 func (h *Handler) MiddlewareLogger() gin.HandlerFunc {
 	log := h.log
 	return func(c *gin.Context) {
-		queryStTime := time.Now()
+		start := time.Now()
 
-		log.Info(
-			"received request",
+		log.Info("received request",
+			zap.String("method", c.Request.Method),
+			zap.String("client ip", c.ClientIP()),
+			zap.String("url", c.Request.URL.String()),
 		)
 
 		c.Next()
 
-		log.Info(
-			"finishing working with request in",
-			zapcore.Field{
-				Key:       "time",
-				Interface: time.Now().Sub(queryStTime),
-			},
-			zapcore.Field{
-				Key:       "request url",
-				Interface: c.Request.URL,
-			},
-			zapcore.Field{
-				Key:       "request method",
-				Interface: c.Request.Method,
-			},
-			zapcore.Field{
-				Key:       "user IP",
-				Interface: c.Request.RemoteAddr,
-			},
-		)
+		duration := time.Since(start)
 
+		log.Info("request completed",
+			zap.Duration("completed in", duration),
+			zap.Int("status", c.Writer.Status()),
+		)
 	}
+
 }

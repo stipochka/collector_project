@@ -5,6 +5,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/go-viper/mapstructure/v2"
 	"github.com/spf13/viper"
 )
 
@@ -53,9 +54,21 @@ func LoadConfig[T any](path string, config *T) error {
 		return fmt.Errorf("%s: failed to read config file: %w", op, err)
 	}
 
-	if err := viper.Unmarshal(config); err != nil {
-		return fmt.Errorf("%s: failed to Unmarshal config: %w", op, err)
+	settings := viper.AllSettings()
+
+	decoderConfig := &mapstructure.DecoderConfig{
+		Metadata: nil,
+		Result:   config,
+		TagName:  "mapstructure",
 	}
 
+	decoder, err := mapstructure.NewDecoder(decoderConfig)
+	if err != nil {
+		return fmt.Errorf("%s: failed to create decoder: %w", op, err)
+	}
+
+	if err := decoder.Decode(settings); err != nil {
+		return fmt.Errorf("%s: failed to decode config: %w", op, err)
+	}
 	return nil
 }
