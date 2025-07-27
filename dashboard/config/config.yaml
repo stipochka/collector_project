@@ -1,0 +1,17 @@
+env: "local"
+
+storage:
+  type: "clickhouse"
+  address: "clickhouse_container:9000"
+  database: "telemetry_db"
+  table: "telemetry_data"
+  user: "telemetry_user"
+  password: "telemetry_pass"
+
+
+http_server:
+  address: "0.0.0.0"
+  port: 8080
+  idle_timeout: 10
+  read_timeout: 6
+  write_timeout: 6
