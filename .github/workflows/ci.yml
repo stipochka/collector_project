@@ -21,6 +21,8 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: 1.24.4
+      - name: Create .env file
+        run: echo "CONFIG_PATH=${{ secrets.CONFIG_PATH }}" >> ./dashboard/.env
         
       - name: Build and start services
         run: docker compose up -d --build
