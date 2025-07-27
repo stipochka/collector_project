@@ -28,11 +28,11 @@ jobs:
         run: docker compose up -d --build
       
       - name: Configure go mod
-        run: go mod tidy
+        run: cd collector-service && go mod tidy
 
       - name: Run e2e test 
         run: |
-          go test collector-service/tests/... -v
+          cd collector-service && go test ./tests/... -v
       
       - name: Stop and remove services 
         if: always()
