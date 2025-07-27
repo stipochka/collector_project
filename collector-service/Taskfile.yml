@@ -3,10 +3,31 @@
 version: '3'
 
 tasks:
-  description: generating protobuf files
+  
   gen-proto:
+    desc: generating protobuf files
     cmds:
       - mkdir -p ./internal/logagent/
       - "protoc -I ../telemetry-proto/proto  ../telemetry-proto/proto/*.proto --go_out=./internal/logagent/ \
         --go_opt=paths=source_relative \
         --go-grpc_out=./internal/logagent/ --go-grpc_opt=paths=source_relative"
+  gen_service_mock:
+    desc: generating service mock 
+    cmds:
+      - mkdir -p ./internal/mocks
+      - mockery --name=LogService --dir=./internal/service/ --output=./internal/mocks --outpkg=servicemock
+    sources:
+      - ./internal/service/service.go
+    generates:
+      - ./internal/mocks
+
+
+# gen_service_mocks:
+#     desc: "Generating service mocks"
+#     cmds: 
+#       - mockery --name=GrpcClient --dir=./internal/service/ --output=./internal/mocks/servicemocks --outpkg=servicemocks
+#       - mockery --name=McuServiceClient --dir=./internal/service/ --output=./internal/mocks/servicemocks --outpkg=servicemocks
+#     sources:
+#       - ./internal/service/service.go
+#     generates:
+#       - ./internal/service/servicemocks

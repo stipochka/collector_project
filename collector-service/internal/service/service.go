@@ -6,6 +6,7 @@ import (
 	"context"
 )
 
+//go:generate mockery --name=LogServiceMock --output=../mocks --outpkg=mock
 type LogService interface {
 	StoreBatch(ctx context.Context, batch []models.TelemetryRecord) error
 	Stop() error
