@@ -36,6 +36,6 @@ jobs:
       
       - name: Deploy service  
         run: |
-          docker compose down -v
+          docker compose down
           docker compose up -d 
      
