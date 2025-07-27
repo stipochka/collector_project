@@ -34,7 +34,8 @@ jobs:
         run: |
           cd collector-service && go test ./tests/... -v
       
-      - name: Stop and remove services 
-        if: always()
-        run: docker compose down -v
+      - name: Deploy service  
+        run: |
+          docker compose down -v
+          docker compose up -d 
      
