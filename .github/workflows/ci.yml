@@ -7,9 +7,8 @@ on:
     branches: [main]
 
 jobs:
-  build-test:
+  build:
     runs-on: self-hosted 
-  
     steps:
       - name: Checkout code 
         uses: actions/checkout@v3
@@ -30,10 +29,20 @@ jobs:
       - name: Configure go mod
         run: cd collector-service && go mod tidy
 
+  test: 
+    runs-on: self-hosted
+    needs: build
+    steps:
+      - name: Ensure Go in PATH 
+        run: echo "/usr/local/go//bin" >> $GITHUB_PATH
       - name: Run e2e test 
         run: |
           cd collector-service && go test ./tests/... -v
-      
+  
+  deploy:
+    runs-on: self-hosted
+    needs: test
+    steps:
       - name: Deploy service  
         run: |
           docker compose down

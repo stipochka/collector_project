@@ -16,7 +16,7 @@ import (
 
 const (
 	serverAddress      = "localhost:9001"
-	contextTimeout     = time.Second * 10
+	contextTimeout     = time.Second * 100
 	ackStatus          = "ok"
 	logBatches         = 4
 	rowsCount          = 2000

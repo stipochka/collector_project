@@ -1,6 +1,6 @@
 module collector-service
 
-go 1.24.4
+go 1.24
 
 require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.37.2
