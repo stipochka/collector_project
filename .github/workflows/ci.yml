@@ -19,14 +19,13 @@ jobs:
       - name: Login to Docker hub
         uses: docker/login-action@v3
         with:
-          username: ${{ vars.DOCKERHUB_LOGIN }}
+          username: ${{ secrets.DOCKERHUB_LOGIN }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
-      
+
       - name: Build and push collector service 
-        uses: docker/build-push-action@v6
-        
+        uses: docker/build-push-action@v6  
         with:
-          context: ./collector_service
+          context: ./collector-service
           push: true 
           tags: vstipochka/private_repository:collector_service_latest
       
@@ -42,6 +41,7 @@ jobs:
 
   deploy-test-server: 
     runs-on: ubuntu-latest
+    needs: build
     steps:
       - name: Login to Docker hub 
         uses: docker/login-action@v3 
