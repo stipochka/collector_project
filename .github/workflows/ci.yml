@@ -40,7 +40,7 @@ jobs:
           tags: vstipochka/private_repository:dashboard_service_latest
 
   deploy-test-server: 
-    runs-on: [self-hosted, test_server]
+    runs-on: [self-hosted, test_stage]
     needs: build
     steps:
       
@@ -61,7 +61,7 @@ jobs:
     
       
   test: 
-    runs-on: [self-hosted, test_se]
+    runs-on: [self-hosted, test_stage]
     needs: deploy-test-server
     steps:
       - name: Ensure Go in PATH 
