@@ -37,10 +37,6 @@ services:
   dashboard_service:
     image: vstipochka/private_repository:dashboard_service_latest
     container_name: dashboard_service
-    env_file:
-      ./dashboard/.env
-    environment:
-      - CONFIG_PATH=/app/config/config.yaml
     ports: 
       - "8080:8080"
     depends_on:

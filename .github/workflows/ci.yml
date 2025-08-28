@@ -28,6 +28,9 @@ jobs:
           context: ./collector-service
           push: true 
           tags: vstipochka/private_repository:collector_service_latest
+      
+      - name: Create .env file in dashboard service 
+        run : echo "CONFIG_PATH=${{ secrets.CONFIG_PATH }}" >> ./dashboard/.env
 
       - name: Build and push dashboard service 
         uses: docker/build-push-action@v6 
@@ -44,9 +47,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Create .env file in dashboard service 
-        run : echo "CONFIG_PATH=${{ secrets.CONFIG_PATH }}" >> ./dashboard/.env
-
       - name: Login to Docker hub 
         uses: docker/login-action@v3 
         with: 
@@ -61,7 +61,7 @@ jobs:
     
       
   test: 
-    runs-on: [self-hosted, test_server]
+    runs-on: [self-hosted, test_se]
     needs: deploy-test-server
     steps:
       - name: Ensure Go in PATH 
