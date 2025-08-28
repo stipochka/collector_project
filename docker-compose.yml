@@ -23,9 +23,7 @@ services:
       retries: 5
     
   collector_service:
-    build:
-      context: ./collector-service
-      dockerfile: Dockerfile
+    image: vstipochka/private_repository:private_repository:collector_service_latest
     container_name: collector-service
     ports: 
       - "9001:9001"
@@ -37,9 +35,7 @@ services:
       - ./collector-service/config/:/app/config/
       - ./collector-service/internal/migrate:/app/migrate
   dashboard_service:
-    build:
-      context: ./dashboard
-      dockerfile: Dockerfile
+    image: vstipochka/private_repository:dashboard_service_latest
     container_name: dashboard_service
     env_file:
       ./dashboard/.env
