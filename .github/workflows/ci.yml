@@ -27,7 +27,7 @@ jobs:
         with:
           context: ./collector-service
           push: true 
-          tags: vstipochka/private_repository:collector_service_latest
+          tags: vstipochka/private_repository:collector_service_${{ github.sha }}
       
       - name: Create .env file in dashboard service 
         run : echo "CONFIG_PATH=${{ secrets.CONFIG_PATH }}" >> ./dashboard/.env
@@ -37,7 +37,7 @@ jobs:
         with:
           context: ./dashboard
           push: true 
-          tags: vstipochka/private_repository:dashboard_service_latest
+          tags: vstipochka/private_repository:dashboard_service_${{ github.sha }}
 
   deploy-test-server: 
     runs-on: [self-hosted, test_stage]
@@ -58,24 +58,37 @@ jobs:
           docker compose down -v
           docker compose up -d 
       
-    
-      
   test: 
     runs-on: [self-hosted, test_stage]
     needs: deploy-test-server
     steps:
-      - name: Ensure Go in PATH 
-        run: echo "/usr/local/go//bin" >> $GITHUB_PATH
+      
+      - name: Setup Golang 
+        uses: actions/setup-go@v5
+        with: 
+          go-version: '1.25'
+          check-latest: true
+
       - name: Run e2e test 
         run: |
           cd collector-service && go test ./tests/... -v
   
   deploy:
-    runs-on: self-hosted
+    runs-on: [self-hosted, test_stage]
     needs: test
     steps:
+      - name: Add SSH private_key 
+        run: |
+          mkdir -p ~/.ssh 
+          echo "${{ secrets.PROD_SERVER_PRIVATE_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H 176.108.244.42 ~/.ssh/known_hosts
+
       - name: Deploy service  
         run: |
-          docker compose down
-          docker compose up -d 
-     
+          ansible-playbook -i ansible/inventory.ini ansible/playbooks/deploy_prod.yml \
+          --extra-vars "dockerhub_username=${{ secrets.DOCKERHUB_LOGIN }} \ 
+          dockerhub_password=${{ secrets.DOCKERHUB_PASSWORD }} \ 
+          image_tag=${{ github.sha }} \
+          --key-file=~/.ssh/id_rsa"
+

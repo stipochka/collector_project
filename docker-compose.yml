@@ -23,7 +23,7 @@ services:
       retries: 5
     
   collector_service:
-    image: vstipochka/private_repository:collector_service_latest
+    image: vstipochka/private_repository:collector_service
     container_name: collector-service
     ports: 
       - "9001:9001"
@@ -35,7 +35,7 @@ services:
       - ./collector-service/config/:/app/config/
       - ./collector-service/internal/migrate:/app/migrate
   dashboard_service:
-    image: vstipochka/private_repository:dashboard_service_latest
+    image: vstipochka/private_repository:dashboard_service
     container_name: dashboard_service
     ports: 
       - "8080:8080"

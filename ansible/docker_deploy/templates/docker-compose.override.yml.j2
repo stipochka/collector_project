@@ -1,0 +1,10 @@
+version: "3.9"
+
+services:
+  collector_service:
+    image: vstipochka/private_repository:collector_service_{{ image_tag }} 
+    restart: always 
+
+  dashboard_service: 
+    image: vstipochka/private_repository:dashboard_service_{{ image_tag }}
+    restart: always
