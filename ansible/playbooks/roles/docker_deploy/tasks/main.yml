@@ -1,16 +1,16 @@
 #SPDX-License-Identifier: MIT-0
 ---
 # tasks file for docker_deploy
-- name: Ensure Docker is enabled
-  apt: 
-    name: docker.io
-    update_cache: yes
-    state: present
+# - name: Ensure Docker is enabled
+#   apt: 
+#     name: docker.io
+#     update_cache: yes
+#     state: present
   
-- name: Ensure docker compose is enabled 
-  apt: 
-    name: docker-compose
-    state: present
+# - name: Ensure docker compose is enabled 
+#   apt: 
+#     name: docker-compose
+#     state: present
 
 - name: Login to docker hub 
   community.docker.docker_login: 
@@ -20,7 +20,8 @@
 - name: Generate docker-compose.yml 
   template:
     src: docker-compose.override.yml.j2
-    dst: /home/{{ ansible_user }}/app
+    dest: /home/{{ ansible_user }}/app/docker-compose.override.yml
+
 - name: Pull new images
   community.docker.docker_compose_v2:
     project_src: /home/{{ ansible_user }}/app

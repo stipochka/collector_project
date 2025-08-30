@@ -91,9 +91,6 @@ jobs:
       
       - name: Deploy service  
         run: |
-          ansible-playbook -i ./ansible/inventory.ini ansible/playbooks/deploy_prod.yml 
-          --extra-vars "dockerhub_username=${{ secrets.DOCKERHUB_LOGIN }} 
-          dockerhub_password=${{ secrets.DOCKERHUB_PASSWORD }}  
-          image_tag=${{ github.sha }} 
-          --key-file=~/.ssh/id_rsa" --become-passw=admin
+          ansible-playbook -i ./ansible/inventory.ini ansible/playbooks/deploy_prod.yml \
+          --extra-vars "dockerhub_login=${{ secrets.DOCKERHUB_LOGIN }} dockerhub_password=${{ secrets.DOCKERHUB_PASSWORD }} image_tag=${{ github.sha }}"
 
