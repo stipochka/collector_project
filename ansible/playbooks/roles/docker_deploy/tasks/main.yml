@@ -20,14 +20,14 @@
 - name: Generate docker-compose.yml 
   template:
     src: docker-compose.override.yml.j2
-    dest: /home/{{ ansible_user }}/app/docker-compose.override.yml
+    dest: /home/{{ ansible_user }}/app/docker-compose.yml
 
 - name: Pull new images
   community.docker.docker_compose_v2:
     project_src: /home/{{ ansible_user }}/app
-    pull: yes 
+    pull: always
 
 - name: Restart services
   community.docker.docker_compose_v2:
-    restart: yes 
-    state: started 
+    project_src: /home/{{ ansible_user }}/app/
+    state: restarted
