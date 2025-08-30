@@ -78,20 +78,22 @@ jobs:
   
   deploy:
     runs-on: [self-hosted, test_stage]
-    needs: test
+    needs: test 
     steps:
-      - name: Add SSH private_key 
+      - name: show environment 
+        run: ls -la
+      - name: Install ansible 
         run: |
-          mkdir -p ~/.ssh 
-          echo "${{ secrets.PROD_SERVER_PRIVATE_SSH_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H 176.108.244.42 ~/.ssh/known_hosts
+          python3 -m pip install --user pipx 
+          ~/.local/bin/pipx install ansible 
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
 
+      
       - name: Deploy service  
         run: |
-          ansible-playbook -i ansible/inventory.ini ansible/playbooks/deploy_prod.yml \
-          --extra-vars "dockerhub_username=${{ secrets.DOCKERHUB_LOGIN }} \ 
-          dockerhub_password=${{ secrets.DOCKERHUB_PASSWORD }} \ 
-          image_tag=${{ github.sha }} \
-          --key-file=~/.ssh/id_rsa"
+          ansible-playbook -i ./ansible/inventory.ini ansible/playbooks/deploy_prod.yml 
+          --extra-vars "dockerhub_username=${{ secrets.DOCKERHUB_LOGIN }} 
+          dockerhub_password=${{ secrets.DOCKERHUB_PASSWORD }}  
+          image_tag=${{ github.sha }} 
+          --key-file=~/.ssh/id_rsa" --become-passw=admin
 

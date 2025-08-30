@@ -1,0 +1,4 @@
+{
+    "ansible.python.interpreterPath": "/usr/local/bin/python3",
+    "ansible.python.activationScript": "/usr/local/bin/python3"
+}
